@@ -40,10 +40,10 @@ Raid Tokens in Mail: %d]]):format(threadsCount, itemCount, xpCounts.Heroic, xpCo
         local xpBarProgress = currentXP / UnitXPMax("player")
         local cloakBonusXP = XP_Calculation:GetCloakBonusXP()
 
-        local requiredDungeonTokens, missingDungeonTokens, requiredRaidTokens, missingRaidTokens = XP_Calculation:CalculateTokens(currentLevel, currentXP, xpCounts, cloakBonusXP)
+        local requiredDungeonTokens, missingDungeonTokens, requiredRaidTokens, missingRaidTokens, currentLevelBlueXPToken, currentLevelEpicXPToken = XP_Calculation:CalculateTokens(currentLevel, currentXP, xpCounts, cloakBonusXP)
 
-        local overflowDungeonXP = XP_Calculation:CalculateOverflowXP(currentLevel, missingDungeonTokens, "BlueXPToken", cloakBonusXP)
-        local overflowRaidXP = XP_Calculation:CalculateOverflowXP(currentLevel, missingRaidTokens, "EpicXPToken", cloakBonusXP)
+        local overflowDungeonXP = XP_Calculation:CalculateOverflowXP(currentLevel, xpCounts.Heroic, "BlueXPToken", cloakBonusXP)
+        local overflowRaidXP = XP_Calculation:CalculateOverflowXP(currentLevel, xpCounts.Raid, "EpicXPToken", cloakBonusXP)
 
         local openMailDungeon = missingDungeonTokens <= 0 and "|cff00FF00YES|r" or "|cffFF0000NO|r"
         local openMailRaid = requiredRaidTokens > 0 and (missingRaidTokens <= 0 and "|cff00FF00YES|r" or "|cffFF0000NO|r") or ""
@@ -75,6 +75,7 @@ Overflow XP: %d]]):format(
         InfoTextFrame.experimentalInfoText:SetText(experimentalInfoText)
     end
 end
+
 
 function InfoWindow:ToggleInfoText()
     if InfoTextFrame then

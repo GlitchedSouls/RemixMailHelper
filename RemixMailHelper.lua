@@ -66,12 +66,17 @@ end
 
 local function RetrieveItemsFromMail(filterFunc)
     local numItems = GetInboxNumItems()
+    local totalAttachments = numItems * ATTACHMENTS_MAX_RECEIVE
+    local processedAttachments = 0
 
-    local function ProcessNextMail(mailIndex, attachmentIndex)
-        if mailIndex > numItems then
+    local function ProcessNextAttachment()
+        if processedAttachments >= totalAttachments then
             InfoWindow:UpdateInfoText()
             return
         end
+
+        local mailIndex = math.floor(processedAttachments / ATTACHMENTS_MAX_RECEIVE) + 1
+        local attachmentIndex = (processedAttachments % ATTACHMENTS_MAX_RECEIVE) + 1
 
         local itemLink = GetInboxItemLink(mailIndex, attachmentIndex)
         if itemLink then
@@ -83,15 +88,11 @@ local function RetrieveItemsFromMail(filterFunc)
             end
         end
 
-        attachmentIndex = attachmentIndex + 1
-        if attachmentIndex > ATTACHMENTS_MAX_RECEIVE then
-            mailIndex = mailIndex + 1
-            attachmentIndex = 1
-        end
-        C_Timer.After(0.1, function() ProcessNextMail(mailIndex, attachmentIndex) end)
+        processedAttachments = processedAttachments + 1
+        C_Timer.After(0.05, ProcessNextAttachment)
     end
 
-    ProcessNextMail(1, 1)
+    ProcessNextAttachment()
 end
 
 local function FilterThreads(itemID)

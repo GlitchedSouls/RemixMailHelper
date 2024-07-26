@@ -90,11 +90,19 @@ function XP_Calculation:CalculateTokens(currentLevel, currentXP, xpTokensInMail,
     requiredRaidTokens = requiredRaidTokens + requiredRaidTokensUnder25 * 0.625
 
     local xpBarPercentage = currentXP / UnitXPMax("player")
-    local missingDungeonTokens = requiredDungeonTokens - (xpTokensInMail.Normal + xpTokensInMail.Heroic + xpBarPercentage * (1 + cloakBonusXP / 100))
-    local missingRaidTokens = requiredRaidTokens - (xpTokensInMail.Normal * 0.625 + xpTokensInMail.Heroic * 0.625 + xpTokensInMail.Raid + xpBarPercentage * (1 + cloakBonusXP / 100))
+
+    local overflowDungeonXP = xpTokensInMail.Heroic * XP_Table[currentLevel].BlueXPToken
+    local overflowRaidXP = xpTokensInMail.Raid * XP_Table[currentLevel].EpicXPToken
+
+    local adjustedDungeonXP = math.max(0, requiredDungeonTokens - overflowDungeonXP)
+    local adjustedRaidXP = math.max(0, requiredRaidTokens - overflowRaidXP)
+
+    local missingDungeonTokens = adjustedDungeonXP - (xpTokensInMail.Normal + xpTokensInMail.Heroic + xpBarPercentage * (1 + cloakBonusXP / 100))
+    local missingRaidTokens = adjustedRaidXP - (xpTokensInMail.Normal * 0.625 + xpTokensInMail.Heroic * 0.625 + xpTokensInMail.Raid + xpBarPercentage * (1 + cloakBonusXP / 100))
 
     return requiredDungeonTokens, missingDungeonTokens, requiredRaidTokens, missingRaidTokens, currentLevelBlueXPToken, currentLevelEpicXPToken
 end
+
 
 function XP_Calculation:CalculateOverflowXP(currentLevel, missingTokens, tokenType, cloakBonusXP)
     local level69RequiredXP = 0
